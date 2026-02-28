@@ -17,7 +17,7 @@ import { collection, addDoc } from "firebase/firestore";
 
 export default function ContactPage() {
   const searchParams = useSearchParams();
-  const selectedImage = searchParams.get("image");
+  const selectedImage = searchParams?.get("image") || null;
 
   const [preview, setPreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -30,14 +30,14 @@ export default function ContactPage() {
   const [message, setMessage] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
 
-  /* Gallery preview */
+  // Gallery preview from URL
   useEffect(() => {
     if (selectedImage) {
       setPreview(selectedImage);
     }
   }, [selectedImage]);
 
-  /* 🔥 CLOUDINARY UPLOAD FUNCTION */
+  // Upload image to Cloudinary
   const uploadImage = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -45,66 +45,59 @@ export default function ContactPage() {
 
     const res = await fetch(
       "https://api.cloudinary.com/v1_1/dpnefzaur/image/upload",
-      {
-        method: "POST",
-        body: formData
-      }
+      { method: "POST", body: formData }
     );
-
     const data = await res.json();
     return data.secure_url;
   };
 
-  /* Form submit */
- const handleOrderSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  // Submit form
+  const handleOrderSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  if (!name || !phone || !cakeType || !cakeSize || !date) {
-    alert("Please fill all required fields");
-    return;
-  }
-
-  try {
-    let imageUrl = "";
-
-    // Case 1: User uploaded new image
-    if (imageFile) {
-      imageUrl = await uploadImage(imageFile);
+    if (!name || !phone || !cakeType || !cakeSize || !date) {
+      alert("Please fill all required fields");
+      return;
     }
 
-    // Case 2: User selected image from gallery
-    else if (preview) {
-      imageUrl = preview;
+    try {
+      let imageUrl = "";
+
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile);
+      } else if (preview) {
+        imageUrl = preview;
+      }
+
+      await addDoc(collection(db, "orders"), {
+        name,
+        phone,
+        cakeType,
+        cakeSize,
+        date,
+        message,
+        imageUrl,
+        status: "pending",
+        createdAt: new Date()
+      });
+
+      setShowSuccess(true);
+
+      // Reset form
+      setName("");
+      setPhone("");
+      setCakeType("");
+      setCakeSize("");
+      setDate("");
+      setMessage("");
+      setPreview(null);
+      setImageFile(null);
+    } catch (error) {
+      console.error(error);
+      alert("Order submission failed");
     }
+  };
 
-    await addDoc(collection(db, "orders"), {
-      name,
-      phone,
-      cakeType,
-      cakeSize,
-      date,
-      message,
-      imageUrl,
-      status: "pending",
-      createdAt: new Date()
-    });
-
-    setShowSuccess(true);
-
-    setName("");
-    setPhone("");
-    setCakeType("");
-    setCakeSize("");
-    setDate("");
-    setMessage("");
-    setPreview(null);
-    setImageFile(null);
-
-  } catch (error) {
-    console.error(error);
-    alert("Order submission failed");
-  }
-};
   return (
     <main className="min-h-screen bg-pink-100 px-6 md:px-20 py-28 relative">
       {/* TITLE */}
@@ -119,7 +112,6 @@ export default function ContactPage() {
 
       {/* CONTAINER */}
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 items-start">
-        
         {/* ORDER FORM LEFT */}
         <div className="bg-white shadow-2xl rounded-3xl p-10">
           <h2 className="text-3xl font-serif text-rose-800 text-center mb-8">
@@ -127,7 +119,6 @@ export default function ContactPage() {
           </h2>
 
           <form className="space-y-5" onSubmit={handleOrderSubmit}>
-            
             <div className="relative">
               <FaUser className="absolute left-4 top-4 text-rose-400" />
               <input
@@ -224,14 +215,12 @@ export default function ContactPage() {
             </button>
           </form>
         </div>
-
         {/* RIGHT CONTACT BOX */}
         <div className="bg-pink-50 shadow-xl rounded-3xl overflow-hidden flex flex-col h-[520px]">
           <div className="bg-white p-10 flex-[0.55]">
             <h2 className="text-3xl font-serif text-rose-800 text-center mb-8">
               Contact Information
             </h2>
-
             <div className="space-y-5 text-gray-600">
               <p className="flex items-center gap-3">
                 <FaPhone className="text-rose-400" />
@@ -251,7 +240,7 @@ export default function ContactPage() {
               </p>
               <p className="flex items-center gap-3">
                 <FaMapMarkerAlt className="text-rose-400" />
-                Dire Dawa, Ethiopia
+                BahirDar, Ethiopia
               </p>
             </div>
           </div>
