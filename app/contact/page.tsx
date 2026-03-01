@@ -236,7 +236,7 @@ export default function ContactPage() {
         </div>
 
         {/* CONTACT BOX */}
-        <div className="bg-pink-50 shadow-xl rounded-3xl overflow-hidden flex flex-col h-[520px]">
+        <div className="bg-pink-50 shadow-xl rounded-3xl overflow-hidden flex flex-col h-130">
           <div className="bg-white p-10 flex-[0.55]">
             <h2 className="text-3xl font-serif text-rose-800 text-center mb-8">
               Contact Information
