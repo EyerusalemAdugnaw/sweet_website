@@ -8,9 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "export": "next build && next export",
-  "deploy": "npm run export && gh-pages -d out"
+    "deploy": "npm run export && gh-pages -d out"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "firebase": "^12.9.0",
     "framer-motion": "^12.34.3",
     "lucide-react": "^0.575.0",

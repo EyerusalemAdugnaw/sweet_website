@@ -16,8 +16,14 @@ export default function AdminLogin() {
     e.preventDefault()
 
     try {
+
+      /* Firebase authentication */
       await signInWithEmailAndPassword(auth, email, password)
 
+      /* ⭐ Create admin session cookie */
+      document.cookie = "admin_auth=true; path=/";
+
+      /* Redirect dashboard */
       router.push("/admin/orders")
 
     } catch {
@@ -28,8 +34,10 @@ export default function AdminLogin() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-pink-100">
 
-      <form onSubmit={login}
-        className="bg-white p-10 rounded-3xl shadow-xl space-y-5 w-96">
+      <form
+        onSubmit={login}
+        className="bg-white p-10 rounded-3xl shadow-xl space-y-5 w-96"
+      >
 
         <h2 className="text-2xl font-serif text-rose-800 text-center">
           Admin Login
@@ -48,7 +56,10 @@ export default function AdminLogin() {
           onChange={e => setPassword(e.target.value)}
         />
 
-        <button className="w-full bg-rose-400 text-white p-3 rounded-xl">
+        <button
+          type="submit"
+          className="w-full bg-rose-400 text-white p-3 rounded-xl hover:bg-rose-500 transition"
+        >
           Login
         </button>
 
