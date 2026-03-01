@@ -17,10 +17,10 @@ export default function AdminLogin() {
     try {
       await signInWithEmailAndPassword(auth, email, password)
 
-      localStorage.setItem("admin_auth", "true")
+      // ✅ Correct cookie format
+      document.cookie = "admin_auth=true; path=/"
 
       router.push("/admin/orders")
-
     } catch {
       alert("Login failed")
     }
@@ -28,13 +28,11 @@ export default function AdminLogin() {
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-pink-100 p-6">
-
       <form
         onSubmit={login}
         className="bg-white p-10 rounded-3xl shadow-xl space-y-6 w-full max-w-md"
       >
-
-        <h2 className="text-3xl font-serif text-rose-800 text-center whitespace-nowrap">
+        <h2 className="text-3xl font-serif text-rose-800 text-center">
           Admin Login
         </h2>
 
@@ -42,7 +40,7 @@ export default function AdminLogin() {
           className="w-full border p-3 rounded-xl"
           placeholder="Email"
           value={email}
-          onChange={e => setEmail(e.target.value.trim())}
+          onChange={(e) => setEmail(e.target.value.trim())}
         />
 
         <input
@@ -50,7 +48,7 @@ export default function AdminLogin() {
           className="w-full border p-3 rounded-xl"
           placeholder="Password"
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
         />
 
         <button
@@ -59,9 +57,7 @@ export default function AdminLogin() {
         >
           Login
         </button>
-
       </form>
-
     </main>
   )
 }
