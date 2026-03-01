@@ -100,14 +100,14 @@ Our delivery team will contact you.`;
         await deleteDoc(doc(db, "orders", orderId));
 
         await emailjs.send(
-          "service_avlk8ld",
-          "template_a141vbp",
+          process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+          process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
           {
             name: order.name,
             email: order.email,
             message: notificationMessage,
           },
-          "3okDEYzDX9wprT2FO"
+          process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
         );
 
         alert("Customer notification sent 🎉");
