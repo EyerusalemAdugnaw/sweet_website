@@ -1,25 +1,31 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { 
-  FaPhone, 
-  FaEnvelope, 
-  FaMapMarkerAlt, 
-  FaUser, 
-  FaCamera, 
+
+import {
+  FaPhone,
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaUser,
+  FaCamera,
   FaInstagram
 } from "react-icons/fa";
+
 import { SiTiktok } from "react-icons/si";
+
 import { db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 
 export default function ContactPage() {
+
   const searchParams = useSearchParams();
   const selectedImage = searchParams?.get("image") ?? null;
 
   const [preview, setPreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -28,35 +34,54 @@ export default function ContactPage() {
   const [deliveryType, setDeliveryType] = useState("");
   const [date, setDate] = useState("");
   const [message, setMessage] = useState("");
+
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
-    if (selectedImage) setPreview(selectedImage);
+    if (typeof window !== "undefined" && selectedImage) {
+      setPreview(selectedImage);
+    }
   }, [selectedImage]);
 
   const uploadImage = async (file: File) => {
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "cake_upload");
 
     const res = await fetch(
-      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_URL!,
-      { method: "POST", body: formData }
+      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_URL as string,
+      {
+        method: "POST",
+        body: formData
+      }
     );
+
     const data = await res.json();
     return data.secure_url;
   };
 
   const handleOrderSubmit = async (e: React.FormEvent) => {
+
     e.preventDefault();
 
-    if (!name || !phone || !email || !cakeType || !cakeSize || !deliveryType || !date) {
+    if (
+      !name ||
+      !phone ||
+      !email ||
+      !cakeType ||
+      !cakeSize ||
+      !deliveryType ||
+      !date
+    ) {
       alert("Please fill all required fields");
       return;
     }
 
     try {
+
       let imageUrl = "";
+
       if (imageFile) {
         imageUrl = await uploadImage(imageFile);
       } else if (preview) {
@@ -77,10 +102,8 @@ export default function ContactPage() {
         createdAt: new Date()
       });
 
-      // ✅ Show success pop-up
       setShowSuccess(true);
 
-      // Reset form
       setName("");
       setPhone("");
       setEmail("");
@@ -92,14 +115,14 @@ export default function ContactPage() {
       setPreview(null);
       setImageFile(null);
 
-    } catch (error) {
-      console.error(error);
+    } catch {
       alert("Order submission failed");
     }
   };
 
   return (
     <main className="min-h-screen bg-pink-100 px-6 md:px-20 py-28 relative">
+
       <div className="text-center mb-16">
         <h1 className="text-5xl font-serif text-rose-800 mb-4">
           Order Your Dream Cake
@@ -110,19 +133,23 @@ export default function ContactPage() {
       </div>
 
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 items-start">
+
         {/* FORM */}
         <div className="bg-white shadow-2xl rounded-3xl p-10">
+
           <h2 className="text-3xl font-serif text-rose-800 text-center mb-8">
             Order Form
           </h2>
+
           <form className="space-y-5" onSubmit={handleOrderSubmit}>
+
             <div className="relative">
               <FaUser className="absolute left-4 top-4 text-rose-400" />
               <input
                 type="text"
                 placeholder="Full Name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={e => setName(e.target.value)}
                 className="w-full p-3 pl-12 border rounded-xl"
               />
             </div>
@@ -131,51 +158,45 @@ export default function ContactPage() {
               type="tel"
               placeholder="Phone Number"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={e => setPhone(e.target.value)}
               className="w-full p-3 border rounded-xl"
             />
-            <div className="relative">
-              <FaEnvelope className="absolute left-4 top-4 text-rose-400" />
-              <input
-                type="email"
-                placeholder="Email Address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-3 pl-12 border rounded-xl"
-              />
-            </div>
+            <input
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="w-full p-3 border rounded-xl"
+            />
 
-            <div className="grid grid-cols-2 gap-4">
-              <select
-                value={cakeType}
-                onChange={(e) => setCakeType(e.target.value)}
-                className="w-full p-3 border rounded-xl text-gray-600"
-              >
-                <option value="">Cake Type</option>
-                <option>Wedding Cake</option>
-                <option>Birthday Cake</option>
-                <option>Graduation Cake</option>
-                <option>Custom Cake</option>
-              </select>
+            <select
+              value={cakeType}
+              onChange={e => setCakeType(e.target.value)}
+              className="w-full p-3 border rounded-xl"
+            >
+              <option value="">Cake Type</option>
+              <option>Wedding Cake</option>
+              <option>Birthday Cake</option>
+              <option>Graduation Cake</option>
+              <option>Custom Cake</option>
+            </select>
 
-              <select
-                value={cakeSize}
-                onChange={(e) => setCakeSize(e.target.value)}
-                className="w-full p-3 border rounded-xl text-gray-600"
-              >
-                <option value="">Cake Size</option>
-                <option>1 kg</option>
-                <option>2 kg</option>
-                <option>3 kg</option>
-                <option>5 kg</option>
-              </select>
-            </div>
+            <select
+              value={cakeSize}
+              onChange={e => setCakeSize(e.target.value)}
+              className="w-full p-3 border rounded-xl"
+            >
+              <option value="">Cake Size</option>
+              <option>1 kg</option>
+              <option>2 kg</option>
+              <option>3 kg</option>
+              <option>5 kg</option>
+            </select>
 
-            {/* DELIVERY TYPE */}
             <select
               value={deliveryType}
-              onChange={(e) => setDeliveryType(e.target.value)}
-              className="w-full p-3 border rounded-xl text-gray-600"
+              onChange={e => setDeliveryType(e.target.value)}
+              className="w-full p-3 border rounded-xl"
             >
               <option value="">Delivery Method</option>
               <option value="pickup">Pick Up Myself</option>
@@ -185,21 +206,21 @@ export default function ContactPage() {
             <input
               type="date"
               value={date}
-              onChange={(e) => setDate(e.target.value)}
+              onChange={e => setDate(e.target.value)}
               className="w-full p-3 border rounded-xl"
             />
 
             <textarea
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={e => setMessage(e.target.value)}
               className="w-full p-3 border rounded-xl h-28"
               placeholder="Message on the cake"
             />
 
-            {/* IMAGE UPLOAD */}
-            <div className="flex flex-col items-center gap-4 border border-dashed rounded-xl p-6">
+            <div className="border border-dashed rounded-xl p-6 text-center">
+
               {preview && (
-                <div className="relative w-40 h-40 rounded-xl overflow-hidden">
+                <div className="relative w-40 h-40 mx-auto rounded-xl overflow-hidden mb-4">
                   <Image
                     src={preview}
                     alt="Preview"
@@ -212,13 +233,17 @@ export default function ContactPage() {
               <label className="cursor-pointer text-rose-500 font-medium">
                 <FaCamera className="inline mr-2" />
                 Upload Photo
+
                 <input
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={(e) => {
+                  onChange={e => {
+
                     if (!e.target.files?.[0]) return;
+
                     const file = e.target.files[0];
+
                     setImageFile(file);
                     setPreview(URL.createObjectURL(file));
                   }}
@@ -228,28 +253,35 @@ export default function ContactPage() {
 
             <button
               type="submit"
-              className="w-full bg-rose-400 text-white py-3 rounded-full hover:bg-rose-500 transition"
+              className="w-full bg-rose-400 text-white py-3 rounded-full hover:bg-rose-500"
             >
               Place Order
             </button>
+
           </form>
         </div>
 
         {/* CONTACT BOX */}
-        <div className="bg-pink-50 shadow-xl rounded-3xl overflow-hidden flex flex-col h-130">
-          <div className="bg-white p-10 flex-[0.55]">
+        <div className="bg-pink-50 shadow-xl rounded-3xl overflow-hidden flex flex-col">
+
+          <div className="bg-white p-10 flex-1">
+
             <h2 className="text-3xl font-serif text-rose-800 text-center mb-8">
               Contact Information
             </h2>
+
             <div className="space-y-5 text-gray-600">
+
               <p className="flex items-center gap-3">
                 <FaPhone className="text-rose-400" />
                 +251 984 623 769
               </p>
+
               <p className="flex items-center gap-3">
                 <FaEnvelope className="text-rose-400" />
                 jerrysweet@gmail.com
               </p>
+
               <p className="flex items-center gap-3">
                 <FaInstagram className="text-rose-400" />
                 @jerrysweethaven
@@ -258,13 +290,16 @@ export default function ContactPage() {
                 <SiTiktok className="text-rose-400" />
                 @jerrysweet
               </p>
+
               <p className="flex items-center gap-3">
                 <FaMapMarkerAlt className="text-rose-400" />
                 BahirDar, Ethiopia
               </p>
+
             </div>
           </div>
-          <div className="flex-[0.45] relative">
+
+          <div className="flex-1 relative h-60">
             <Image
               src="/hero-cake5.png"
               alt="Cake"
@@ -272,32 +307,35 @@ export default function ContactPage() {
               className="object-contain"
             />
           </div>
+
         </div>
+
       </div>
+{/* SUCCESS MODAL */}
+{showSuccess && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+    <div className="bg-white p-10 rounded-3xl shadow-2xl text-center max-w-sm">
 
-      {/* SUCCESS MODAL */}
-      {showSuccess && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-          <div className="bg-white p-10 rounded-3xl shadow-2xl text-center max-w-sm">
-            <div className="text-5xl mb-4">🎂</div>
+      <div className="text-5xl mb-4">🎂</div>
 
-            <h2 className="text-2xl font-serif text-rose-800 mb-2">
-              Order Placed Successfully!
-            </h2>
+      <h2 className="text-2xl font-serif text-rose-800 mb-2">
+        Order Placed Successfully!
+      </h2>
 
-            <p className="text-gray-600 mb-6">
-              Thank you for choosing Jerry's Sweet 💕
-            </p>
+      <p className="text-gray-600 mb-6">
+        Thank you for choosing Jerry's Sweet 💕
+      </p>
 
-            <button
-              onClick={() => setShowSuccess(false)}
-              className="bg-rose-400 hover:bg-rose-500 text-white px-6 py-3 rounded-full transition"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      <button
+        onClick={() => setShowSuccess(false)}
+        className="bg-rose-400 hover:bg-rose-500 text-white px-6 py-3 rounded-full transition"
+      >
+        Close
+      </button>
+
+    </div>
+  </div>
+)}
     </main>
   );
 }
