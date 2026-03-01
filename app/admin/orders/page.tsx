@@ -1,5 +1,4 @@
 "use client";
-
 import emailjs from "@emailjs/browser";
 import Link from "next/link";
 import { useEffect, useState } from "react";
