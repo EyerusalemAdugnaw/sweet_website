@@ -41,7 +41,7 @@ export default function ContactPage() {
     formData.append("upload_preset", "cake_upload");
 
     const res = await fetch(
-      "https://api.cloudinary.com/v1_1/dpnefzaur/image/upload",
+      
       { method: "POST", body: formData }
     );
     const data = await res.json();
