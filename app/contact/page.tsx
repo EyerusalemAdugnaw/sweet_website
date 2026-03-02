@@ -1,6 +1,9 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
   FaPhone,
@@ -8,25 +11,17 @@ import {
   FaMapMarkerAlt,
   FaUser,
   FaCamera,
-  FaInstagram
+  FaInstagram,
 } from "react-icons/fa";
 import { SiTiktok } from "react-icons/si";
 import { db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
-
-export default function ContactPage({
-  searchParams,
-}: {
-  searchParams?: {
-    image?: string;
-  };
-}) {
-
-  const selectedImage: string | null = searchParams?.image ?? null;
+export default function ContactPage() {
+  const searchParams = useSearchParams();
+  const selectedImage = searchParams.get("image");
 
   const [preview, setPreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -35,7 +30,6 @@ export default function ContactPage({
   const [deliveryType, setDeliveryType] = useState("");
   const [date, setDate] = useState("");
   const [message, setMessage] = useState("");
-
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
@@ -47,7 +41,10 @@ export default function ContactPage({
   const uploadUrl = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_URL as string;
 
   const uploadImage = async (file: File) => {
-    if (!uploadUrl) throw new Error("Upload URL missing");
+    if (!uploadUrl) {
+      console.error("Cloudinary upload URL missing");
+      return "";
+    }
 
     const formData = new FormData();
     formData.append("file", file);
@@ -59,6 +56,12 @@ export default function ContactPage({
     });
 
     const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Upload failed:", data);
+      return "";
+    }
+
     return data.secure_url;
   };
 
@@ -103,6 +106,7 @@ export default function ContactPage({
 
       setShowSuccess(true);
 
+      // Reset form
       setName("");
       setPhone("");
       setEmail("");
@@ -113,16 +117,14 @@ export default function ContactPage({
       setMessage("");
       setPreview(null);
       setImageFile(null);
-
     } catch (error) {
-      console.error("Order error:", error);
-      alert("Order submission failed: " + error);
+      console.error("Order failed:", error);
+      alert("Order submission failed");
     }
   };
 
   return (
-    <main className="min-h-screen bg-pink-100 px-6 md:px-20 py-28 relative">
-
+    <main className="min-h-screen bg-pink-100 py-16 px-6">
       <div className="text-center mb-16">
         <h1 className="text-5xl font-serif text-rose-800 mb-4">
           Order Your Dream Cake
@@ -133,7 +135,6 @@ export default function ContactPage({
       </div>
 
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 items-start">
-
         {/* FORM */}
         <div className="bg-white shadow-2xl rounded-3xl p-10">
           <h2 className="text-3xl font-serif text-rose-800 text-center mb-8">
@@ -141,7 +142,6 @@ export default function ContactPage({
           </h2>
 
           <form className="space-y-5" onSubmit={handleOrderSubmit}>
-
             <div className="relative">
               <FaUser className="absolute left-4 top-4 text-rose-400" />
               <input
@@ -215,43 +215,40 @@ export default function ContactPage({
               className="w-full p-3 border rounded-xl h-28"
               placeholder="Message on the cake"
             />
+<div className="border border-dashed rounded-xl p-6 text-center">
+  {preview && (
+    <div className="relative w-40 h-40 mx-auto rounded-xl overflow-hidden mb-4">
+      <Image
+        src={preview}
+        alt="Preview"
+        fill
+        className="object-cover"
+      />
+    </div>
+  )}
 
-            <div className="border border-dashed rounded-xl p-6 text-center">
-              {preview && (
-                <div className="relative w-40 h-40 mx-auto rounded-xl overflow-hidden mb-4">
-                  <Image
-                    src={preview}
-                    alt="Preview"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              )}
-
-              <label className="cursor-pointer text-rose-500 font-medium">
-                <FaCamera className="inline mr-2" />
-                Upload Photo
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    if (!e.target.files?.[0]) return;
-                    const file = e.target.files[0];
-                    setImageFile(file);
-                    setPreview(URL.createObjectURL(file));
-                  }}
-                />
-              </label>
-            </div>
-
+  <label className="cursor-pointer text-rose-500 font-medium">
+    <FaCamera className="inline mr-2" />
+    Upload Photo
+    <input
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={(e) => {
+        if (!e.target.files?.[0]) return;
+        const file = e.target.files[0];
+        setImageFile(file);
+        setPreview(URL.createObjectURL(file));
+      }}
+    />
+  </label>
+</div>
             <button
               type="submit"
               className="w-full bg-rose-400 text-white py-3 rounded-full hover:bg-rose-500"
             >
               Place Order
             </button>
-
           </form>
         </div>
 
@@ -272,6 +269,7 @@ export default function ContactPage({
                 <FaEnvelope className="text-rose-400" />
                 jerrysweet@gmail.com
               </p>
+
               <p className="flex items-center gap-3">
                 <FaInstagram className="text-rose-400" />
                 @jerrysweethaven
@@ -298,10 +296,7 @@ export default function ContactPage({
             />
           </div>
         </div>
-
       </div>
-
-      {/* SUCCESS MODAL */}
       {showSuccess && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
           <div className="bg-white p-10 rounded-3xl shadow-2xl text-center max-w-sm">
@@ -321,7 +316,6 @@ export default function ContactPage({
           </div>
         </div>
       )}
-
     </main>
   );
 }
