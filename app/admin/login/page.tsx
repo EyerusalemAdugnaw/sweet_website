@@ -6,25 +6,25 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 export default function AdminLogin() {
-  const router = useRouter()
+  const router = useRouter();
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const login = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
-      await signInWithEmailAndPassword(auth, email, password)
+      await signInWithEmailAndPassword(auth, email, password);
 
-      // ✅ Correct cookie format
-      document.cookie = "admin_auth=true; path=/"
+      // ✅ Correct cookie format (production safe)
+      document.cookie = "admin_auth=true; path=/; SameSite=Lax";
 
-      router.push("/admin/orders")
+      router.push("/admin/orders");
     } catch {
-      alert("Login failed")
+      alert("Login failed");
     }
-  }
+  };
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-pink-100 p-6">
@@ -59,5 +59,5 @@ export default function AdminLogin() {
         </button>
       </form>
     </main>
-  )
+  );
 }
