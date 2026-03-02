@@ -17,13 +17,16 @@ import { collection, addDoc } from "firebase/firestore";
 export default function ContactPage({
   searchParams,
 }: {
-  searchParams: { image?: string };
+  searchParams?: {
+    image?: string;
+  };
 }) {
 
-  const selectedImage = searchParams?.image ?? null;
+  const selectedImage: string | null = searchParams?.image ?? null;
 
   const [preview, setPreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -32,6 +35,7 @@ export default function ContactPage({
   const [deliveryType, setDeliveryType] = useState("");
   const [date, setDate] = useState("");
   const [message, setMessage] = useState("");
+
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
@@ -43,6 +47,8 @@ export default function ContactPage({
   const uploadUrl = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_URL as string;
 
   const uploadImage = async (file: File) => {
+    if (!uploadUrl) throw new Error("Upload URL missing");
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "cake_upload");
@@ -96,6 +102,7 @@ export default function ContactPage({
       });
 
       setShowSuccess(true);
+
       setName("");
       setPhone("");
       setEmail("");
@@ -108,14 +115,14 @@ export default function ContactPage({
       setImageFile(null);
 
     } catch (error) {
-  console.error("Order error:", error);
-  alert("Order submission failed: " + error);
-}
+      console.error("Order error:", error);
+      alert("Order submission failed: " + error);
+    }
   };
 
   return (
     <main className="min-h-screen bg-pink-100 px-6 md:px-20 py-28 relative">
-      
+
       <div className="text-center mb-16">
         <h1 className="text-5xl font-serif text-rose-800 mb-4">
           Order Your Dream Cake
@@ -145,7 +152,6 @@ export default function ContactPage({
                 className="w-full p-3 pl-12 border rounded-xl"
               />
             </div>
-
             <input
               type="tel"
               placeholder="Phone Number"
@@ -153,6 +159,7 @@ export default function ContactPage({
               onChange={(e) => setPhone(e.target.value)}
               className="w-full p-3 border rounded-xl"
             />
+
             <input
               type="email"
               placeholder="Email Address"
@@ -265,11 +272,11 @@ export default function ContactPage({
                 <FaEnvelope className="text-rose-400" />
                 jerrysweet@gmail.com
               </p>
-
               <p className="flex items-center gap-3">
                 <FaInstagram className="text-rose-400" />
                 @jerrysweethaven
               </p>
+
               <p className="flex items-center gap-3">
                 <SiTiktok className="text-rose-400" />
                 @jerrysweet
