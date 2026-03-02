@@ -1,18 +1,20 @@
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const adminAuth = request.cookies.get("admin_auth")
+  const adminAuth = request.cookies.get("admin_auth")?.value;
 
-  if (request.nextUrl.pathname.startsWith("/admin")) {
-    if (!adminAuth) {
-      return NextResponse.redirect(new URL("/admin/login", request.url))
-    }
+  const isLoginPage = request.nextUrl.pathname === "/admin/login";
+
+  if (!adminAuth && !isLoginPage) {
+    return NextResponse.redirect(
+      new URL("/admin/login", request.url)
+    );
   }
 
-  return NextResponse.next()
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: ["/admin/:path*"],
-}
+};
