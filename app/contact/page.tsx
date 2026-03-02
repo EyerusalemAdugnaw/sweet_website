@@ -107,9 +107,10 @@ export default function ContactPage({
       setPreview(null);
       setImageFile(null);
 
-    } catch {
-      alert("Order submission failed");
-    }
+    } catch (error) {
+  console.error("Order error:", error);
+  alert("Order submission failed: " + error);
+}
   };
 
   return (
